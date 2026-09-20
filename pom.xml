@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+      DisputeDesk — "Architecting and Implementing AI-Native Enterprise Systems in Java"
+      Versions are pinned for the WHOLE series. Do not bump mid-series.
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.meridian</groupId>
+    <artifactId>disputedesk-parent</artifactId>
+    <version>0.0.0-part-00</version>
+    <packaging>pom</packaging>
+    <name>DisputeDesk (parent)</name>
+
+    <modules>
+        <!-- Part 0: the existing, deterministic system of record -->
+        <module>dispute-service</module>
+        <!-- Part 1+: dispute-agent -->
+        <!-- Part 7:  merchant-portal-mcp -->
+        <!-- Part 8:  dispute-evals -->
+    </modules>
+
+    <properties>
+        <java.version>25</java.version>
+        <!-- Declared now, first used in Part 1. Spring AI 2.x requires Spring Boot 4.x -->
+        <spring-ai.version>2.0.0</spring-ai.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

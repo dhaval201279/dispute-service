@@ -1,0 +1,30 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: dispute-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/disputedesk
+    username: disputedesk
+    password: disputedesk
+  flyway:
+    locations: classpath:db/migration
+  mvc:
+    problemdetails:
+      enabled: true
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+disputes:
+  # Bank-side SLA: how long Meridian gives itself to resolve a dispute
+  resolution-sla-days: 45
+  # Max gap between two charges for DR-101 (duplicate) to be verifiable
+  duplicate-window-hours: 72

@@ -1,0 +1,72 @@
+### DisputeDesk Part 0 — the legacy API, exercised by hand.
+### Run with the IntelliJ HTTP client or the VS Code REST Client extension.
+### Notice how much the CALLER must already know. That is the problem Part 1 onward solves.
+
+@host = http://localhost:8081
+
+### 1. Who is Priya?
+GET {{host}}/api/cardholders/CH-1001
+
+### 2. Her last 30 days. Spot the two identical URBANNEST*ONLINE charges yourself.
+GET {{host}}/api/cardholders/CH-1001/transactions?days=30
+
+### 3. S1 — the form makes HER find and supply the other transaction's ID
+POST {{host}}/api/disputes
+Content-Type: application/json
+
+{
+  "cardholderId": "CH-1001",
+  "transactionId": "TXN-100103",
+  "reasonCode": "DR-101",
+  "statement": "I was charged twice for the same order at UrbanNest.",
+  "duplicateOfTransactionId": "TXN-100102"
+}
+
+### 4. S1 again, as most real cardholders would fill it in — no duplicate ID. -> 422 MISSING_REQUIRED_EVIDENCE
+POST {{host}}/api/disputes
+Content-Type: application/json
+
+{
+  "cardholderId": "CH-1001",
+  "transactionId": "TXN-100102",
+  "reasonCode": "DR-101",
+  "statement": "Charged twice at the furniture shop last week!"
+}
+
+### 5. S5 — merchant already refunded. -> 422 ALREADY_REFUNDED
+POST {{host}}/api/disputes
+Content-Type: application/json
+
+{
+  "cardholderId": "CH-1002",
+  "transactionId": "TXN-100202",
+  "reasonCode": "DR-104",
+  "statement": "Order never arrived from QuickCart.",
+  "expectedDeliveryDate": "2026-01-01"
+}
+
+### 6. S7 — Meera picks "fraud" for a legitimate tea shop with a cryptic descriptor.
+###    The form ACCEPTS it and burns a fraud analyst's time. No rule can catch this;
+###    only understanding the descriptor can. Remember this one for Part 2.
+POST {{host}}/api/disputes
+Content-Type: application/json
+
+{
+  "cardholderId": "CH-1003",
+  "transactionId": "TXN-100301",
+  "reasonCode": "DR-201",
+  "statement": "I do not recognise SQ *TPR HSPTLTY at all."
+}
+
+### 7. Inspect a dispute (replace the ID with one returned above)
+GET {{host}}/api/disputes/DSP-10001
+
+### 8. Provisional credit. Send it TWICE and look at provisionalCreditTotal. (Part 4.)
+POST {{host}}/api/disputes/DSP-10001/provisional-credits
+Content-Type: application/json
+X-Actor: analyst:demo
+
+{ "amount": 2000.00 }
+
+### 9. Karan's history — three lost disputes (Part 6 uses this)
+GET {{host}}/api/cardholders/CH-1004/disputes

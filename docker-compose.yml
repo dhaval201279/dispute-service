@@ -1,0 +1,24 @@
+# Local infrastructure for DisputeDesk.
+# pgvector image from day one so Part 5 (RAG) needs no infra change.
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: disputedesk-postgres
+    environment:
+      POSTGRES_DB: disputedesk
+      POSTGRES_USER: disputedesk
+      POSTGRES_PASSWORD: disputedesk
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U disputedesk -d disputedesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Part 9 adds: jaeger (OpenTelemetry traces)
+
+volumes:
+  pgdata:
