@@ -42,6 +42,47 @@ Tests (Testcontainers starts its own PostgreSQL; Docker must be running):
 mvn verify
 ```
 
+## Run Stage 1
+```shell
+    mvn -pl dispute-agent spring-boot:run "-Dspring-boot.run.profiles=experiment,local" "-Dspring-boot.run.arguments=--experiment.runs=1"
+```
+C4, C5 and C10 bounded still showing unknown. Hence update the rules accordingly
+
+## Run Stage 2
+```shell
+    mvn -pl dispute-agent spring-boot:run "-Dspring-boot.run.profiles=experiment,local" "-Dspring-boot.run.arguments=--experiment.runs=5"
+```
+C4, C5 and C10 should be showing correct reason code i.e. D201
+
+## Run Stage 3
+```shell
+    # For Powershell
+    $env:GOOGLE_API_KEY = "QA...."
+
+    # Check setting of above env variable
+    echo $env:GOOGLE_API_KEY
+    
+    
+    mvn -pl dispute-agent spring-boot:run -Dspring-boot.run.profiles=experiment -Dspring-boot.run.arguments="--experiment.runs=20"
+
+    mkdir results
+    copy dispute-agent\target\variance.csv results\gemini-runs20.csv
+
+```
+
+
+```bash
+export ANTHROPIC_API_KEY=sk-...
+mvn -pl dispute-agent spring-boot:run \
+    -Dspring-boot.run.profiles=experiment \
+    -Dspring-boot.run.arguments=--experiment.runs=20
+```
+
+
+Writes `dispute-agent/target/variance.csv` and prints a markdown summary.
+800 model calls at the default settings — start with `--experiment.runs=5`.
+Add the `local` profile to run against Ollama instead.
+
 ## Pinned versions (unchanged for the whole series)
 
 Java 25 · Spring Boot 4.1.x · Spring AI 2.0.x · PostgreSQL 17 + pgvector

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.meridian</groupId>
+        <artifactId>disputedesk-parent</artifactId>
+        <version>0.0.0-part-00</version>
+    </parent>
+
+    <artifactId>dispute-agent</artifactId>
+    <name>DisputeDesk :: dispute-agent</name>
+    <description>
+        Part 1: a single LLM call that classifies a cardholder complaint, plus the
+        experiment that measures how much the answer moves between identical runs.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Default provider. Swap the starter (and the profile in application.yml) for Ollama. -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <!--<artifactId>spring-ai-starter-model-anthropic</artifactId>-->
+            <!--<artifactId>spring-ai-starter-model-google-genai</artifactId>-->
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-ollama</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

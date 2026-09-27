@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: dispute-agent
+  main:
+    web-application-type: none          # Part 1 is a command-line experiment, not a service
+  ai:
+    model:
+      chat: anthropic                   # picks which chat model auto-config wins
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}    # empty default so the 'local' profile starts without a key
+      chat:
+        options:
+          model: claude-sonnet-4-6
+          max-tokens: 512
+    ollama:
+      init:
+        pull-model-strategy: never
+
+logging:
+  level:
+    com.meridian.agent: INFO
+
+---
+# Local Profile - Run the experiment against a local model instead:
+#   mvn -pl dispute-agent spring-boot:run "-Dspring-boot.run.profiles=experiment,local"
+# Expect noticeably worse structured output from small local models. That is a finding,
+# not a setup error — Part 1 reports it rather than hiding it.
+spring:
+  config:
+    activate:
+      on-profile: local
+  ai:
+    model:
+      chat: ollama                      # the actual provider switch
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: qwen2.5:7b
+---
+# Groq profile
+spring:
+  config:
+    activate:
+      on-profile: groq
+  ai:
+    model:
+      chat: openai
+    openai:
+      api-key: ${GROQ_API_KEY:}
+      base-url: https://api.groq.com/openai/v1
+      chat:
+        options:
+          model: openai/gpt-oss-20b   # or openai/gpt-oss-120b, qwen/qwen3.8-27b
+          max-tokens: 512
+
+---
+# FHRouter profile
+spring:
+  config:
+    activate:
+      on-profile: fhrouter
+  ai:
+    model:
+      chat: openai
+    openai:
+      api-key: ${FHROUTER_API_KEY:}
+      base-url: https://api.fhrouter.com/openai/v1
+      chat:
+        options:
+          model: deepseek-chat     # or grok-beta, glm-4 depending on catalog

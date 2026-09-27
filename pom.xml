@@ -24,7 +24,7 @@
     <modules>
         <!-- Part 0: the existing, deterministic system of record -->
         <module>dispute-service</module>
-        <!-- Part 1+: dispute-agent -->
+        <module>dispute-agent</module>
         <!-- Part 7:  merchant-portal-mcp -->
         <!-- Part 8:  dispute-evals -->
     </modules>
