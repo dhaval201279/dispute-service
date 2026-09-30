@@ -1,7 +1,7 @@
 # DisputeDesk
 
 Reference implementation for the blog series
-**"Architecting and Implementing AI-Native Enterprise Systems in Java"** by [Dhaval Shah](https://dhaval-shah.com).
+**"Architecting and Implementing AI-Native Enterprise Systems in Java"** by [Dhaval Shah](https://www.dhaval-shah.com/about/).
 
 One system, built one layer per part: an AI dispute-resolution agent for a fictional card issuer,
 **Meridian Bank**, on Java 25, Spring Boot 4 and Spring AI 2.
@@ -15,15 +15,6 @@ One system, built one layer per part: an AI dispute-resolution agent for a ficti
 | 0 | What & why of AI-native systems, and why the JVM | The existing deterministic dispute system | `part-00` |
 | 1 | Why deterministic thinking breaks | Complaint classifier + variance experiment | `part-01` |
 | 2 | Anatomy of an agent | Hand-written agent loop, first tool, structured output | `part-02` |
-| 3 | The Java stack | Spring AI agent, advisors, virtual-thread benchmark | `part-03` |
-| 4 | Tools are the new endpoints | Tool design experiment, idempotent credits, first eval | `part-04` |
-| 5 | Grounding with RAG | Policy corpus in PGVector, hybrid search, citations | `part-05` |
-| 6 | Memory and state | JDBC chat memory, survive-a-restart, cardholder profile | `part-06` |
-| 7 | Multi-agent + MCP | Fraud/evidence sub-agents, MCP server and client | `part-07` |
-| 8 | Reliability engineering | Eval harness in CI, Resilience4j, chaos test | `part-08` |
-| 9 | Security, observability, capstone | Injection suite, OTel → Jaeger, approval gate | `part-09` |
-
-Start with [docs/architecture.md](docs/architecture.md), then [docs/scenarios.md](docs/scenarios.md).
 
 ## Run Part 0
 
@@ -56,31 +47,22 @@ C4, C5 and C10 should be showing correct reason code i.e. D201
 
 ## Run Stage 3
 ```shell
-    # For Powershell
-    $env:GOOGLE_API_KEY = "QA...."
-
-    # Check setting of above env variable
-    echo $env:GOOGLE_API_KEY
-    
-    
-    mvn -pl dispute-agent spring-boot:run -Dspring-boot.run.profiles=experiment -Dspring-boot.run.arguments="--experiment.runs=20"
-
-    mkdir results
-    copy dispute-agent\target\variance.csv results\gemini-runs20.csv
-
+    export GROQ_API_KEY=gs_
+    mvn -pl dispute-agent spring-boot:run \
+        -Dspring-boot.run.profiles=experiment,groq \
+        -Dspring-boot.run.arguments=--experiment.runs=20
 ```
 
 
-```bash
-export ANTHROPIC_API_KEY=sk-...
-mvn -pl dispute-agent spring-boot:run \
-    -Dspring-boot.run.profiles=experiment \
-    -Dspring-boot.run.arguments=--experiment.runs=20
+```ps
+    $env:GROQ_API_KEY = "gs_"
+    echo $env:GROQ_API_KEY
+    mvn -pl dispute-agent spring-boot:run "-Dspring-boot.run.profiles=experiment,groq" "-Dspring-boot.run.arguments=--experiment.runs=2"        
 ```
 
 
 Writes `dispute-agent/target/variance.csv` and prints a markdown summary.
-800 model calls at the default settings — start with `--experiment.runs=5`.
+800 model calls at the default settings - start with `--experiment.runs=5`.
 Add the `local` profile to run against Ollama instead.
 
 ## Pinned versions (unchanged for the whole series)

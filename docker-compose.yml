@@ -1,5 +1,4 @@
 # Local infrastructure for DisputeDesk.
-# pgvector image from day one so Part 5 (RAG) needs no infra change.
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -18,7 +17,6 @@ services:
       timeout: 3s
       retries: 10
 
-  # Part 9 adds: jaeger (OpenTelemetry traces)
 
 volumes:
   pgdata:

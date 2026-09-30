@@ -29,7 +29,7 @@ An AI-native system is not "a system with a chatbot." It is a system designed fr
 | P6 | **Evals are the test suite.** A prompt change without an eval run is an untested deploy. | Part 4, Part 8 |
 | P7 | **Autonomy is earned.** Read-only → reversible-with-approval → autonomous, per action. | Part 9 |
 
-## 3. Target architecture (end of Part 9)
+## 3. Target architecture
 
 ```mermaid
 flowchart LR
@@ -66,21 +66,6 @@ flowchart LR
     EVALS[dispute-evals<br/>mvn verify<br/>Part 8] -.->|replays scenarios| agent
 ```
 
-### Component-by-part map
-
-| Component | Module | Introduced | Hardened |
-|-----------|--------|-----------|----------|
-| Dispute REST API + rules | `dispute-service` | Part 0 | Part 4 (idempotency), Part 9 (authN/Z) |
-| Complaint classifier | `dispute-agent` | Part 1 | Part 8 |
-| Hand-written agent loop (no framework) | `dispute-agent` (`raw` package) | Part 2 | — (kept as teaching reference) |
-| Spring AI agent, advisors, tools | `dispute-agent` | Part 3 | Parts 4–9 |
-| Tool contracts + first eval | `dispute-agent`, `dispute-evals` | Part 4 | Part 8 |
-| Policy RAG (PGVector, hybrid search, citations) | `dispute-agent` | Part 5 | Part 9 (injection) |
-| JDBC chat memory, cardholder profile | `dispute-agent` | Part 6 | — |
-| MCP server (analyst tools), MCP client (merchant portal), sub-agents | `dispute-agent`, `merchant-portal-mcp` | Part 7 | Part 9 (scopes) |
-| Eval harness, Resilience4j, cost ceilings | `dispute-evals`, `dispute-agent` | Part 8 | — |
-| Injection suite, OTel → Jaeger, approval gate | all | Part 9 | — |
-
 ## 4. Part 0 architecture (what exists today)
 
 ```mermaid
@@ -93,27 +78,6 @@ flowchart LR
     CQ --> R
     R --> PG[(PostgreSQL 17<br/>pgvector image)]
     S -.->|every state change| EV[(dispute_events<br/>append-only audit)]
-```
-
-### Dispute lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> OPEN: DR-101 / DR-104 / DR-107
-    [*] --> UNDER_REVIEW: DR-201 (fraud queue)
-    OPEN --> CHARGEBACK_FILED: file chargeback
-    OPEN --> RESOLVED_CARDHOLDER_FAVOUR
-    OPEN --> RESOLVED_MERCHANT_FAVOUR
-    OPEN --> WITHDRAWN
-    UNDER_REVIEW --> RESOLVED_CARDHOLDER_FAVOUR
-    UNDER_REVIEW --> RESOLVED_MERCHANT_FAVOUR
-    UNDER_REVIEW --> WITHDRAWN
-    CHARGEBACK_FILED --> RESOLVED_CARDHOLDER_FAVOUR
-    CHARGEBACK_FILED --> RESOLVED_MERCHANT_FAVOUR
-    note right of OPEN
-        Provisional credits can be issued in any active state.
-        Resolving in merchant's favour flags them for reversal.
-    end note
 ```
 
 ### API surface (the agent's future tools)
@@ -148,8 +112,8 @@ Rule violations return RFC 9457 problem details with a stable `errorCode`, for e
 
 **Context.** We could let the agent call `DisputeService` in-process, or even query tables directly.
 **Decision.** The agent is a separate deployable. Its tools call `dispute-service` over HTTP.
-**Why.** This is how AI arrives in real enterprises: in front of systems that already work, owned by other teams. It keeps every rule (P1, P3) in one place, gives us a hard trust boundary for Part 9, makes the MCP story in Part 7 natural, and lets the talk's "From REST APIs to AI Agents" framing be literally true.
-**Cost.** One extra network hop per tool call. Measured in Part 3; negligible next to LLM latency.
+**Why.** This is how AI arrives in real enterprises: in front of systems that already work, owned by other teams. It keeps every rule (P1, P3) in one place, gives us a hard trust boundary, makes the MCP story natural.
+**Cost.** One extra network hop per tool call.
 
 ### ADR-002 — Readable, prefixed identifiers (`TXN-100103`, `DSP-10001`)
 
@@ -157,17 +121,9 @@ Rule violations return RFC 9457 problem details with a stable `errorCode`, for e
 
 ### ADR-003 — Plain `JdbcClient`, no ORM
 
-**Why.** Every SQL statement is visible in the source, which matters for a teaching series whose theme is "nothing hidden." It also keeps the Spring Boot 4 upgrade surface small.
+**Why.** For broader control and of course for performance reasons
 
-### ADR-004 — Seed data uses dates relative to `now()`
-
-**Why.** Filing windows are time-based. Absolute dates would make scenarios silently rot a few months after publication, breaking both reader demos and the Part 8 eval suite.
-
-### ADR-005 — Non-idempotent provisional credit is left in deliberately
-
-**Why.** Part 4 demonstrates, with a real agent, how a retried tool call double-credits a customer, then fixes it with an `Idempotency-Key`. The bug is documented in code and pinned by `knownIssue_retriedPartialCreditIsAppliedTwice_fixedInPart4`.
-
-### ADR-006 — Pinned platform versions for the whole series
+### ADR-004 — Pinned platform versions for the whole series
 
 Java 25 (LTS) · Spring Boot 4.1.x · Spring AI 2.0.x · PostgreSQL 17 + pgvector. No upgrades mid-series.
 
@@ -179,9 +135,7 @@ disputedesk/
 ├── docker-compose.yml        postgres (pgvector) — Part 9 adds jaeger
 ├── dispute-service/          Part 0: system of record
 ├── dispute-agent/            Part 1+
-├── merchant-portal-mcp/      Part 7
-├── dispute-evals/            Part 8
-├── docs/                     architecture, scenarios
+├── docs/                     architecture
 └── http/                     runnable request scripts per part
 ```
 
