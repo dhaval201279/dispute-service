@@ -38,12 +38,12 @@ flowchart LR
 
     subgraph agent["dispute-agent (Spring Boot + Spring AI)"]
         direction TB
-        INTAKE[Intake agent<br/>Parts 2–4]
-        FRAUD[Fraud-screening agent<br/>Part 7]
-        EVID[Evidence agent<br/>Part 7]
-        ADV[Advisor chain:<br/>memory · RAG · guardrails · token budget<br/>Parts 3, 5, 6, 8]
-        APPROVAL[Approval gate<br/>Part 9]
-        MCPS[MCP server:<br/>read-only case tools<br/>Part 7]
+        INTAKE[Intake agent<br/>]
+        FRAUD[Fraud-screening agent<br/>]
+        EVID[Evidence agent<br/>]
+        ADV[Advisor chain:<br/>memory · RAG · guardrails · token budget<br/>]
+        APPROVAL[Approval gate<br/>]
+        MCPS[MCP server:<br/>read-only case tools<br/>]
         INTAKE --- ADV
         INTAKE -->|delegate| FRAUD
         INTAKE -->|delegate| EVID
@@ -52,18 +52,18 @@ flowchart LR
 
     UI --> INTAKE
     ADV --> LLM[(LLM provider<br/>Anthropic / Ollama)]
-    ADV --> VEC[(PGVector:<br/>policy corpus<br/>Part 5)]
-    ADV --> MEM[(JDBC chat memory<br/>+ cardholder profile<br/>Part 6)]
+    ADV --> VEC[(PGVector:<br/>policy corpus<br/>)]
+    ADV --> MEM[(JDBC chat memory<br/>+ cardholder profile<br/>)]
     INTAKE -->|REST tools| DS
     APPROVAL -->|after human OK| DS
-    EVID -->|MCP client| MP[merchant-portal-mcp<br/>mock<br/>Part 7]
+    EVID -->|MCP client| MP[merchant-portal-mcp<br/>mock<br/>]
 
-    subgraph core["dispute-service (Part 0) — system of record"]
+    subgraph core["dispute-service — system of record"]
         DS[Dispute REST API<br/>deterministic rules] --> DB[(PostgreSQL)]
     end
 
-    agent -.->|OpenTelemetry GenAI spans| JAEGER[Jaeger<br/>Part 9]
-    EVALS[dispute-evals<br/>mvn verify<br/>Part 8] -.->|replays scenarios| agent
+    agent -.->|OpenTelemetry GenAI spans| JAEGER[Jaeger<br/>]
+    EVALS[dispute-evals<br/>mvn verify<br/>] -.->|replays scenarios| agent
 ```
 
 ## 4. Part 0 architecture (what exists today)
